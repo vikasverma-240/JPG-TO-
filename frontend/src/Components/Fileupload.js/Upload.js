@@ -4,7 +4,7 @@ function Upload() {
     const handleSubmit = async (event) => {
         event.preventDefault();
         const formData = new FormData(event.target);
-        const response = await fetch('http://localhost:3001/convert', {
+        const response = await fetch('https://jpg-to.onrender.com/convert', {
             method: 'POST',
             body: formData,
         });
