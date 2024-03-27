@@ -21,7 +21,7 @@ function Upload() {
     return (
         <div className="App">
             <div>
-                <div className="h-screen font-sans text-gray-900 bg-slate-50 border-box">
+                <div className="h-[70vh] pt-12 font-sans text-gray-900 bg-slate-50 border-box">
                     <div className="flex justify-center w-full mx-auto sm:max-w-lg">
                         <div className="flex flex-col items-center justify-center w-full h-auto my-20 bg-white sm:w-3/4 sm:rounded-lg sm:shadow-xl">
                             <div className="mt-10 mb-10 text-center">
