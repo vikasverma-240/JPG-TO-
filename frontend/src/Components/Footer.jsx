@@ -17,7 +17,7 @@ const Footer = () => {
                             href="#"
                             className="mt-8 inline-block rounded-full border border-purple-800 px-12 py-3 text-sm font-medium text-purple-800 hover:bg-purple-800 hover:text-white focus:outline-none focus:ring active:bg-purple-800"
                         >
-                            Get Started
+                            Get Startet
                         </a>
                     </div>
 
