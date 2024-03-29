@@ -31,7 +31,7 @@ function Upload() {
 
         try {
             const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'http://localhost:3001/convert', true);
+            xhr.open('POST', 'https://jpg-to.onrender.com/convert', true);
             xhr.responseType = 'blob';
 
             xhr.upload.onprogress = (event) => {
