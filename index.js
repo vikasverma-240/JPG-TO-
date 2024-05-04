@@ -1,31 +1,63 @@
-// backend/server.js
 const express = require('express');
 const sharp = require('sharp');
 const multer = require('multer');
 const cors = require('cors');
 const fs = require('fs');
-const path = require('path');
+const { PDFDocument } = require('pdf-lib');
 
 const app = express();
 const upload = multer({ dest: 'uploads/' });
 
 app.use(cors());
 
-app.post('/convert', upload.single('image'), (req, res) => {
-  const { path: imagePath, filename } = req.file;
-  sharp(imagePath)
-    .toFormat('webp')
-    .toBuffer()
-    .then(data => {
-      // Instead of just sending the data, you could also write the file to your server's disk and send a link, or directly send the file back as done here.
-      res.type('webp');
-      res.send(data);
-      // Cleanup the uploaded file after conversion
-      fs.unlink(imagePath, (err) => {
-        if (err) console.error("Error deleting the original file:", err);
+app.post('/convert', upload.single('image'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).send('No file uploaded.');
+  }
+
+  const { path: imagePath } = req.file;
+  const format = req.query.format || 'webp'; // Default to webp if no format specified
+
+  try {
+    if (format === 'pdf') {
+      // Convert JPEG to PDF
+      const imageBytes = fs.readFileSync(imagePath);
+      const pdfDoc = await PDFDocument.create();
+      const image = await pdfDoc.embedJpg(imageBytes);
+      const page = pdfDoc.addPage();
+      page.drawImage(image, {
+        x: 0,
+        y: 0,
+        width: page.getWidth(),
+        height: page.getHeight(),
       });
-    })
-    .catch(err => res.status(500).json({ message: 'Error converting image', error: err }));
+      const pdfBytes = await pdfDoc.save();
+      res.type('application/pdf').send(Buffer.from(pdfBytes));
+    } else {
+      // Handle other formats using Sharp
+      let processedImage = sharp(imagePath);
+      switch (format) {
+        case 'png':
+          processedImage = processedImage.toFormat('png');
+          break;
+        case 'webp':
+          processedImage = processedImage.toFormat('webp');
+          break;
+        default:
+          throw new Error('Unsupported format');
+      }
+      const data = await processedImage.toBuffer();
+      res.type(format).send(data);
+    }
+  } catch (err) {
+    res.status(500).json({ message: 'Error converting image', error: err });
+  } finally {
+    fs.unlink(imagePath, err => {
+      if (err) {
+        console.error("Failed to delete the uploaded file:", err);
+      }
+    });
+  }
 });
 
 const PORT = process.env.PORT || 3001;

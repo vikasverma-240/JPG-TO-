@@ -1,3 +1,24 @@
+app.post('/convert', upload.single('image'), (req, res) => {
+  const { path: imagePath, filename } = req.file;
+  sharp(imagePath)
+    .toFormat('webp')
+    .toBuffer()
+    .then(data => {
+      // Instead of just sending the data, you could also write the file to your server's disk and send a link, or directly send the file back as done here.
+      res.type('webp');
+      res.send(data);
+      // Cleanup the uploaded file after conversion
+      fs.unlink(imagePath, (err) => {
+        if (err) console.error("Error deleting the original file:", err);
+      });
+    })
+    .catch(err => res.status(500).json({ message: 'Error converting image', error: err }));
+});
+
+
+// Front End
+
+
 import React, { useState } from 'react';
 
 function Upload() {
@@ -31,7 +52,7 @@ function Upload() {
 
         try {
             const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'https://jpg-to.onrender.com/convert', true);
+            xhr.open('POST', 'http://localhost:3001/convert', true);
             xhr.responseType = 'blob';
 
             xhr.upload.onprogress = (event) => {
